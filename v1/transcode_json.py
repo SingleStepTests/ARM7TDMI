@@ -38,15 +38,6 @@ def load_state(buf, ptr) -> (int, Any):
     return full_sz, state
 
 def load_transactions(buf, ptr) -> (int, Dict):
-    '''
-    for (auto &t : test->transactions) {
-        W32((u32)t.tkind);
-        W32(t.size);
-        W32(t.addr);
-        W32(t.data);
-        W32(t.cycle);
-    }
-    '''
     transactions = []
     full_sz, mn, num_transactions = unpack_from('iii', buf, ptr)
     ptr += 12
@@ -72,7 +63,12 @@ def load_opcodes(buf, ptr):
     opcodes = []
     ptr += 8
     values = unpack_from('IIIII', buf, ptr)
-    return full_sz, list(values)
+    ptr += (5 * 4)
+    base_addr = unpack_from('I', buf, ptr)
+    return full_sz, list(values), base_addr
+
+def load_base_addr(buf, ptr):
+    return unpack_from('I', buf, ptr)[0]
 
 def decode_test(buf, ptr) -> (int, Dict):
     full_sz = unpack_from('i', buf, ptr)[0]
@@ -84,9 +80,8 @@ def decode_test(buf, ptr) -> (int, Dict):
     ptr += sz
     sz, test['transactions'] = load_transactions(buf, ptr)
     ptr += sz
-    sz, test['opcodes'] = load_opcodes(buf, ptr)
+    sz, test['opcodes'], test['base_addr'] = load_opcodes(buf, ptr)
     ptr += sz
-
 
     return full_sz, test
 
