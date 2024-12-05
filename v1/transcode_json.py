@@ -43,14 +43,15 @@ def load_transactions(buf, ptr) -> (int, Dict):
     ptr += 12
     if mn != 3: print('!!!!', mn)
     for i in range(0, num_transactions):
-        values = unpack_from('<IIIII', buf, ptr)
-        ptr += (5 * 4)
+        values = unpack_from('<IIIIII', buf, ptr)
+        ptr += (6 * 4)
         transaction = {
             'kind': values[0],
             'size': values[1],
             'addr': values[2],
             'data': values[3],
-            'cycle': values[4]
+            'cycle': values[4],
+            'access': values[5]
         }
         if values[0] > 3:
             print('KINDS?', values[0])

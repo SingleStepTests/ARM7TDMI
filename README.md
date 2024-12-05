@@ -12,7 +12,7 @@ These LIKELY have bugs. Until tested, don't be surprised if you get a wrong resu
 
 These tests currently consist of 20,000 tests per .json file, each one testing a category of encoding. There may be holes or inaccuracies. Only ARM is covered, THUMB will come soon. 
 
-Each tests has a list with 500 entries that look like this (this is from hw_data_transfer_register.json):
+Each tests has a list with 20000 entries that look like this (this is from hw_data_transfer_register.json):
 
 ```json
   {
@@ -138,14 +138,16 @@ Each tests has a list with 500 entries that look like this (this is from hw_data
         "size": 4,
         "addr": 3076961312,
         "data": 10629219,
-        "cycle": 1
+        "cycle": 1,
+        "access": 12,
       },
       {
         "kind": 0,
         "size": 4,
         "addr": 3076961316,
         "data": 10698852,
-        "cycle": 2
+        "cycle": 2,
+        "access": 12,
       }
     ],
     "opcodes": [
@@ -168,11 +170,11 @@ Is the location in RAM where opcode[0] is located. Just the base address of the 
 They contain the initial and final state of all relevant registers in the CPU. Initial is what the CPU is set to before executing 2 instructions, and final is what all the same registers contain afterward.
 
 * R: R0-R15
-* R_fiq: R0-R6 banked for FIQ
-* R_svc, R_abt, R_irq, R_und: R0-R1 banked for svc, abt, IRQ, and und.
+* R_fiq: R8-R14 banked for FIQ
+* R_svc, R_abt, R_irq, R_und: R13-R14 banked for svc, abt, IRQ, and und.
 * CPSR register
 * SPSR registers in this order: regular, fiq, svc, abt, irq, und
-* pipeline: The contents of the instruction instruction pipeline, in order
+* pipeline: The contents of the instruction pipeline, in order
 
 Honestly I don't have an ARM7TDMI core yet and I'm not sure if this is the best way to represent this data. Let me know if I can make it better. Moving on...
 
@@ -184,7 +186,8 @@ Are memory transactions.
 "size": 4,
 "addr": 3076961316,
 "data": 10698852,
-"cycle": 2
+"cycle": 2,
+"access": 12
 ```
 
 * kind is 0 for an instruction read, 1 for a general read, and 2 for a write
@@ -192,6 +195,17 @@ Are memory transactions.
 * addr is the address
 * data is the data
 * cycle is the cycle number this transaction happened on (experimental, I'm not sure if I instrumented NBA correctly for this number)
+* access is the access mask provided by NanoBoyAdvance. It is made by ORing these values together:
+
+```cpp
+    enum Access {
+        Nonsequential = 0,
+        Sequential = 1,
+        Code = 2,
+        Dma = 4,
+        Lock = 8
+    };
+```
 
 ## Opcodes
 This section is a doozy. Testing a 32-bit RISC processor isn't like testing an 8-bit processor. We can't just allocate a flat 4 gigs of RAM and go. (Well, maybe many of us can, but it's not a good idea). Instead, we have a list of transactions to search through and match our transactions against, and a list of opcodes that are given in different circumstances.
@@ -232,8 +246,8 @@ def read(addr, is_code):
 ## Disclaimers
 
 * The tests do not properly restrict read and write alignment, other than instructions. Let me know if it's important to change this
-* The tests treat RAM as a 32-bit flat space with no memory-mapped registers.
+* The tests treat RAM as a 32-bit flat space with no memory-mapped registers. Unless you want to allocate 4GB RAM, I suggest you use our transaction-based method.
 * The tests may have bugs, this is an in-development release v0.1
 * There may be issues with the tests we don't know yet.
-* 
+
 I hope you find it useful!
