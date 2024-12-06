@@ -12,7 +12,7 @@ These LIKELY have bugs. Until tested, don't be surprised if you get a wrong resu
 
 These tests currently consist of 20,000 tests per .json file, each one testing a category of encoding. There may be holes or inaccuracies. Only ARM is covered, THUMB will come soon. 
 
-Each tests has a list with 20000 entries that look like this (this is from hw_data_transfer_register.json):
+Each test has a list with 20000 entries that look like this (this is from hw_data_transfer_register.json):
 
 ```json
   {
@@ -167,7 +167,7 @@ Each tests has a list with 20000 entries that look like this (this is from hw_da
 Is the location in RAM where opcode[0] is located. Just the base address of the test.
 
 ### Initial and final are the same format.
-They contain the initial and final state of all relevant registers in the CPU. Initial is what the CPU is set to before executing 2 instructions, and final is what all the same registers contain afterward.
+They contain the initial and final state of all relevant registers in the CPU. Initial is what the CPU is set to before executing the instruction, and final is what all the same registers contain afterward.
 
 * R: R0-R15
 * R_fiq: R8-R14 banked for FIQ
@@ -220,17 +220,17 @@ Here is what the opcodes in the list ARE:
 
 All of the opcodes other than the specific one being tested were chosen specifically so that (a) they would be very simple (no shifts etc.) and easy to rely on, and (b) they would have different side-effects. This should help you determine where something goes wrong.
 
-Opcode 0 is loaded into pipeline slot 0, opcode 1 is in pipeline slot 1, and R15 is set to the address of opcode 2 (+8 from the about-to-execute instruction).
+Opcode 0 is loaded into pipeline slot 0, opcode 1 is in pipeline slot 1, and R15 is set to the address of opcode 2 (+8 from the about-to-execute instruction, ot +4 for THUMB).
 
-The CPU is set up in this way, and runs 2 instructions.
+The CPU is set up in this way, and runs 1 instruction.
 
-Opcode 0 and then optionally either 1 or 3 should be executed. Opcode 1 is normally executed for most instructions. 3 is only executed if a branch is taken.
+Opcode 0 only should be executed.
 
 ### Putting it all together
 
 When your CPU issues a read or write, you should look it up in the list of transactions and compare it. If it isn't found in the transactions, you should return opcode 4 as the value, as that will have a side effect one way or another.
 
-IF you do not emulate the pipeline, you may wish to add in the ability to return opcodes 0-4 based on read address. In pseudocode that looks something like this...
+In pseudocode that looks something like this...
 
 ```python
 def read(addr, is_code):
@@ -249,5 +249,6 @@ def read(addr, is_code):
 * The tests treat RAM as a 32-bit flat space with no memory-mapped registers. Unless you want to allocate 4GB RAM, I suggest you use our transaction-based method.
 * The tests may have bugs, this is an in-development release v0.1
 * There may be issues with the tests we don't know yet.
+* As of yet, the correct number of cycles and transactions happening on the correct cycle are not recorded. The correct order is.
 
 I hope you find it useful!
