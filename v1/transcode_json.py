@@ -5,8 +5,6 @@ import json
 from struct import unpack_from
 from typing import Dict, Any
 
-NUMTESTS = 20000
-
 def load_state(buf, ptr) -> (int, Any):
     full_sz = unpack_from('i', buf, ptr)[0]
 
@@ -87,13 +85,18 @@ def decode_test(buf, ptr) -> (int, Dict):
     return full_sz, test
 
 
-
 def decode_file(infilename, outfilename):
     print('Decoding ' + infilename)
     with open(infilename, 'rb') as infile:
         content = infile.read()
-    ptr = 0
+    mn, NUMTESTS = unpack_from('<II', content, 0)
+    if mn != 0xD33DBAE0:
+        print('BAD TEST FILE! ' + infilename)
+        return
+
+    ptr = 8
     tests = []
+
     for i in range(0, NUMTESTS):
         sz, test = decode_test(content, ptr)
         ptr += sz
