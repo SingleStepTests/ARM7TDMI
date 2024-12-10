@@ -10,7 +10,7 @@ def load_state(buf, ptr) -> (int, Any):
 
     state = {'R': [], 'R_fiq': [], 'R_svc': [], 'R_abt': [], 'R_irq': [], 'R_und': [], 'CPSR': None, 'SPSR': [], 'pipeline': []}
     ptr += 8
-    values = unpack_from('I' * 40, buf, ptr)
+    values = unpack_from('I' * 39, buf, ptr)
 
     for i in range(0, 16):
         state['R'].append(values[i])
@@ -31,8 +31,8 @@ def load_state(buf, ptr) -> (int, Any):
         state['R_und'].append(values[i+29])
 
     state['CPSR'] = values[31]
-    state['SPSR'] = [ values[32], values[33], values[34], values[35], values[36], values[37] ]
-    state['pipeline'] = [ values[38], values[39] ]
+    state['SPSR'] = [ values[32], values[33], values[34], values[35], values[36] ]
+    state['pipeline'] = [ values[37], values[38] ]
     return full_sz, state
 
 def load_transactions(buf, ptr) -> (int, Dict):
