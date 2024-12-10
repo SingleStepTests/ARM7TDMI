@@ -173,7 +173,7 @@ They contain the initial and final state of all relevant registers in the CPU. I
 * R_fiq: R8-R14 banked for FIQ
 * R_svc, R_abt, R_irq, R_und: R13-R14 banked for svc, abt, IRQ, and und.
 * CPSR register
-* SPSR registers in this order: regular, fiq, svc, abt, irq, und
+* SPSR registers in this order: fiq, svc, abt, irq, und
 * pipeline: The contents of the instruction pipeline, in order
 
 Honestly I don't have an ARM7TDMI core yet and I'm not sure if this is the best way to represent this data. Let me know if I can make it better. Moving on...
