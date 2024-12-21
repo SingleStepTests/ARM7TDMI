@@ -244,9 +244,7 @@ def read(addr, is_code):
 ```
 
 ## Known Issues
-* When doing reads like LDRSB from unaligned address, the tests list a 1-byte memory access, even though as far as we know a 16-bit one is done, followed by a ROR by 8, before sign-extension.
 * Some illegal edge cases (which can't even be produced by assembler) where write-back register is r15 and destination register is r15, may not have perfectly correct behavior
-* 
 
 ## Disclaimers
 
