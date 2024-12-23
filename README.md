@@ -150,13 +150,7 @@ Each test has a list with 20000 entries that look like this (this is from hw_dat
         "access": 12,
       }
     ],
-    "opcodes": [
-      1887645885,
-      10559586,
-      10629219,
-      10698852,
-      11047017
-    ],
+    "opcode": 1887645885,
     "base_addr": 3076961306
   },
 ```
@@ -164,7 +158,7 @@ Each test has a list with 20000 entries that look like this (this is from hw_dat
 ### The top-level keys are "initial," "final," "opcodes," "transactions," and "base_addr."
 
 ### base_addr
-Is the location in RAM where opcode[0] is located. Just the base address of the test.
+Is the location in RAM where opcode is located. Just the base address of the test.
 
 ### Initial and final are the same format.
 They contain the initial and final state of all relevant registers in the CPU. Initial is what the CPU is set to before executing the instruction, and final is what all the same registers contain afterward.
@@ -175,8 +169,6 @@ They contain the initial and final state of all relevant registers in the CPU. I
 * CPSR register
 * SPSR registers in this order: fiq, svc, abt, irq, und
 * pipeline: The contents of the instruction pipeline, in order
-
-Honestly I don't have an ARM7TDMI core yet and I'm not sure if this is the best way to represent this data. Let me know if I can make it better. Moving on...
 
 ### Transactions
 Are memory transactions.
@@ -207,28 +199,16 @@ Are memory transactions.
     };
 ```
 
-## Opcodes
-This section is a doozy. Testing a 32-bit RISC processor isn't like testing an 8-bit processor. We can't just allocate a flat 4 gigs of RAM and go. (Well, maybe many of us can, but it's not a good idea). Instead, we have a list of transactions to search through and match our transactions against, and a list of opcodes that are given in different circumstances.
+## Opcode
+The opcode is the opcode.
 
-Here is what the opcodes in the list ARE:
-
-* 0: is the opcode being tested
-* 1: is ADC R1, R2, store in R2
-* 2: is ADC R2, R3, store in R3
-* 3: is ADC R3, R4, store in R4
-* 4: is ADC R8, R9, store in R9
-
-All of the opcodes other than the specific one being tested were chosen specifically so that (a) they would be very simple (no shifts etc.) and easy to rely on, and (b) they would have different side-effects. This should help you determine where something goes wrong.
-
-Opcode 0 is loaded into pipeline slot 0, opcode 1 is in pipeline slot 1, and R15 is set to the address of opcode 2 (+8 from the about-to-execute instruction, ot +4 for THUMB).
+Opcodes are loaded into the pipeline from the initial state, and R15 is set to the address of opcode 2 (+8 from the about-to-execute instruction, ot +4 for THUMB).
 
 The CPU is set up in this way, and runs 1 instruction.
 
-Opcode 0 only should be executed.
-
 ### Putting it all together
 
-When your CPU issues a read or write, you should look it up in the list of transactions and compare it. If it isn't found in the transactions, you should return opcode 4 as the value, as that will have a side effect one way or another.
+When your CPU issues a read or write, you should look it up in the list of transactions and compare it. You should return the included data if possible. This is for data reads; for instruction reads, we return the opcode if it's the base address, or just the address that was requested.
 
 In pseudocode that looks something like this...
 
@@ -236,11 +216,10 @@ In pseudocode that looks something like this...
 def read(addr, is_code):
     if not is_code:
         return lookup_transaction(addr)
-    if (addr >= test.base_addr) and (addr <= (test.base_addr + 12)):
-        diff = (addr - test.base_addr) / 4
-        return test.opcodes[diff]
+    if (addr == test.base_addr):
+        return test.opcode;
     else:
-        return test.opcodes[4]
+        return addr;
 ```
 
 ## Known Issues

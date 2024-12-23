@@ -59,12 +59,12 @@ def load_transactions(buf, ptr) -> (int, Dict):
 
 def load_opcodes(buf, ptr):
     full_sz = unpack_from('i', buf, ptr)[0]
-    opcodes = []
+    opcode = 0
     ptr += 8
-    values = unpack_from('IIIII', buf, ptr)
-    ptr += (5 * 4)
+    values = unpack_from('I', buf, ptr)
+    ptr += 4
     base_addr = unpack_from('I', buf, ptr)
-    return full_sz, list(values), base_addr
+    return full_sz, opcode, base_addr
 
 def load_base_addr(buf, ptr):
     return unpack_from('I', buf, ptr)[0]
@@ -79,7 +79,7 @@ def decode_test(buf, ptr) -> (int, Dict):
     ptr += sz
     sz, test['transactions'] = load_transactions(buf, ptr)
     ptr += sz
-    sz, test['opcodes'], test['base_addr'] = load_opcodes(buf, ptr)
+    sz, test['opcode'], test['base_addr'] = load_opcodes(buf, ptr)
     ptr += sz
 
     return full_sz, test
