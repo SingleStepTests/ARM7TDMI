@@ -199,6 +199,8 @@ Are memory transactions.
     };
 ```
 
+For my own internal testing, I also included NBA's internal "current code access" in the before and after states.
+
 ## Opcode
 The opcode is the opcode.
 
