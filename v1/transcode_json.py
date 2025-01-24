@@ -60,11 +60,10 @@ def load_transactions(buf, ptr) -> (int, Dict):
 
 def load_opcodes(buf, ptr):
     full_sz = unpack_from('i', buf, ptr)[0]
-    opcode = 0
     ptr += 8
-    values = unpack_from('I', buf, ptr)
+    opcode = unpack_from('I', buf, ptr)[0]
     ptr += 4
-    base_addr = unpack_from('I', buf, ptr)
+    base_addr = unpack_from('I', buf, ptr)[0]
     return full_sz, opcode, base_addr
 
 def load_base_addr(buf, ptr):
