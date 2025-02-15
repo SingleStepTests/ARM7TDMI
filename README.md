@@ -8,11 +8,11 @@ These tests are generated from fleroviux's excellent NanoBoyAdvance. Any errors 
 You must run transcode_json.py after pulling the tests. This will translate the .json.bin format into .json format to easily work with. If you wish to use the binary representation, the .py file should document it fairly clearly, it's a very simple format.
 
 ## About
-These LIKELY have bugs. Until tested, don't be surprised if you get a wrong result. This is normal for releasing these tests.
+I wrote my own GBA emulator using this. Although it didn't cover everything - I still benefitted from armwrestler, thumbwrestler, and other tests - it made development of my core a lot easier. 
 
-These tests currently consist of 20,000 tests per .json file, each one testing a category of encoding. There may be holes or inaccuracies. Only ARM is covered, THUMB will come soon. 
+These tests currently consist of 20,000 tests per .json file, each one testing a category of encoding. 
 
-Each test has a list with 20000 entries that look like this (this is from hw_data_transfer_register.json):
+Each test has a list with 50000 entries that look like this (this is from hw_data_transfer_register.json):
 
 ```json
   {
@@ -199,7 +199,7 @@ Are memory transactions.
     };
 ```
 
-For my own internal testing, I also included NBA's internal "current code access" in the before and after states.
+For my own internal testing, I also included NBA's internal "current code access" in the before and after states. This represents the state of the pipeline.
 
 ## Opcode
 The opcode is the opcode.
@@ -231,8 +231,6 @@ def read(addr, is_code):
 
 * The tests do not properly restrict read and write alignment, other than instructions. Let me know if it's important to change this
 * The tests treat RAM as a 32-bit flat space with no memory-mapped registers. Unless you want to allocate 4GB RAM, I suggest you use our transaction-based method.
-* The tests may have bugs, this is an in-development release v0.1
-* There may be issues with the tests we don't know yet.
 * As of yet, the correct number of cycles and transactions happening on the correct cycle are not recorded. The correct order is.
 
 I hope you find it useful!
